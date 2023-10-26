@@ -63,7 +63,7 @@ class ArticlesController extends AppController
         if ($this->request->is('post')) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
 
-            // Hardcoding the user_id is temporary, and will be removed later
+            // TODO: Hardcoding the user_id is temporary, and will be removed later
             // when we build authentication out.
             if (property_exists($article, 'user_id')) {
                 $article->user_id = 1;
@@ -76,6 +76,12 @@ class ArticlesController extends AppController
             }
             $this->Flash->error(__('Unable to add your article.'));
         }
+        $tags = $this->Articles->Tags->find('list')->all();
+
+        $this->set('tags', $tags);
+
+        $this->set('article', $article);
+
         $this->set('article', $article);
     }
 
@@ -108,6 +114,9 @@ class ArticlesController extends AppController
             $this->Flash->error(__('Unable to update your article.'));
         }
 
+        $tags = $this->Articles->Tags->find('list')->all();
+        $this->set('tags', $tags);
+
         $this->set('article', $article);
     }
 
@@ -137,5 +146,24 @@ class ArticlesController extends AppController
 
             return $this->redirect(['action' => 'index']);
         }
+    }
+
+    public function tags()
+    {
+        // The 'pass' key is provided by CakePHP and contains all
+        // the passed URL path segments in the request.
+        $tags = $this->request->getParam('pass');
+
+        // Use the ArticlesTable to find tagged articles.
+        $articles = $this->Articles->find('tagged', [
+                'tags' => $tags
+            ])
+            ->all();
+
+        // Pass variables into the view template context.
+        $this->set([
+            'articles' => $articles,
+            'tags' => $tags
+        ]);
     }
 }

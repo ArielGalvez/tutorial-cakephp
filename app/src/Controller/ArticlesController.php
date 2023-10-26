@@ -81,8 +81,6 @@ class ArticlesController extends AppController
         $this->set('tags', $tags);
 
         $this->set('article', $article);
-
-        $this->set('article', $article);
     }
 
     /**

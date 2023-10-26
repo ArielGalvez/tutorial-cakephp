@@ -8,6 +8,9 @@ use Cake\ORM\Table;
 use Cake\Utility\Text;
 use Cake\Validation\Validator;
 
+// the Query class
+use Cake\ORM\Query;
+
 class ArticlesTable extends Table
 {
     /**

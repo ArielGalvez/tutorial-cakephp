@@ -20,6 +20,11 @@ use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
 use Authentication\Middleware\AuthenticationMiddleware;
+use Authorization\AuthorizationService;
+use Authorization\AuthorizationServiceInterface;
+use Authorization\AuthorizationServiceProviderInterface;
+use Authorization\Middleware\AuthorizationMiddleware;
+use Authorization\Policy\OrmResolver;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\FactoryLocator;
@@ -93,6 +98,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
                 'httponly' => true,
             ]));
 
+        $middlewareQueue->add(new AuthorizationMiddleware($this));
+
         return $middlewareQueue;
     }
 
@@ -119,6 +126,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
         $this->addOptionalPlugin('Bake');
 
         $this->addPlugin('Migrations');
+
+        $this->addPlugin('Authorization');
 
         // Load more plugins here
     }
@@ -152,5 +161,12 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
         ]);
 
         return $authenticationService;
+    }
+
+    public function getAuthorizationService(ServerRequestInterface $request): AuthorizationServiceInterface
+    {
+        $resolver = new OrmResolver();
+
+        return new AuthorizationService($resolver);
     }
 }

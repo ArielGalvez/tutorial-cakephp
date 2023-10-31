@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
+Route::get('/articles', [ArticlesController::class, 'index']);
+
 use App\Controller\ArticlesController;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
@@ -33,7 +35,9 @@ class ArticlesControllerTest extends TestCase
      */
     public function testIndex(): void
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $this->get('/articles');
+        $this->assertResponseOk();
+        $this->assertResponseContains('List of Articles');
     }
 
     /**

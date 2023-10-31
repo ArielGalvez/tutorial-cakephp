@@ -72,3 +72,13 @@ We'll practice the web development using CakePHP Framework following https://boo
 
 3. Please kindly share the URL of the Pull Request once finish the development.
 4. **Important Note:** Please make a small & meaningful commits.
+
+
+# LESSONS
+
+# create migrations
+docker-compose exec php-app bin/cake bake migration NameOfMigration
+
+# run migrations
+docker-compose exec php-app bin/cake migrations migrate
+

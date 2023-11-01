@@ -27,18 +27,24 @@ class ArticlesSeed extends AbstractSeed
      */
     public function run(): void
     {
-        // Insert data into the 'articles' table
-        $articlesData = [
-            [
-                'user_id' => 1,
-                'title' => 'First Post',
-                'slug' => 'first-post',
-                'body' => 'This is the first post.',
-                'published' => 1,
-                'created' => date('Y-m-d H:i:s'),
-                'modified' => date('Y-m-d H:i:s'),
-            ],
-        ];
-        $this->table('articles')->insert($articlesData)->save();
+        try {
+            // Insert data into the 'articles' table
+            $articlesData = [
+                [
+                    'user_id' => 1,
+                    'title' => 'First Post',
+                    'slug' => 'first-post',
+                    'body' => 'This is the first post.',
+                    'published' => 1,
+                    'created' => date('Y-m-d H:i:s'),
+                    'modified' => date('Y-m-d H:i:s'),
+                ],
+            ];
+            $this->table('articles')->insert($articlesData)->save();
+        } catch (\Exception $e) {
+            echo "ArticlesSeed already executed";
+            echo "Error: " . $e->getMessage();
+        }
+        
     }
 }

@@ -20,15 +20,21 @@ class UsersSeed extends AbstractSeed
      */
     public function run(): void
     {
-        // Insert data into the 'users' table
-        $usersData = [
-            [
-                'email' => 'cakephp@example.com',
-                'password' => 'secret',
-                'created' => date('Y-m-d H:i:s'),
-                'modified' => date('Y-m-d H:i:s'),
-            ],
-        ];
-        $this->table('users')->insert($usersData)->save();
+        try {
+            // Insert data into the 'users' table
+            $usersData = [
+                [
+                    'email' => 'cakephp@example.com',
+                    'password' => 'secret',
+                    'created' => date('Y-m-d H:i:s'),
+                    'modified' => date('Y-m-d H:i:s'),
+                ],
+            ];
+            $this->table('users')->insert($usersData)->save();
+        } catch (\Exception $e) {
+            echo "UsersSeed already executed";
+            echo "Error: " . $e->getMessage();
+        }
+
     }
 }

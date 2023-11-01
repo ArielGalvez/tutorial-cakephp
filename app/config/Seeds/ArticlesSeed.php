@@ -1,13 +1,20 @@
 <?php
 declare(strict_types=1);
 
-use Migrations\AbstractSeed;
+use Phinx\Seed\AbstractSeed;
 
 /**
- * UsersArticles seed.
+ * Articles seed.
  */
-class UsersArticlesSeed extends AbstractSeed
-{
+class ArticlesSeed extends AbstractSeed
+{ 
+    public function getDependencies()
+    {
+        return [
+            'UsersSeed',
+        ];
+    }
+
     /**
      * Run Method.
      *
@@ -20,17 +27,6 @@ class UsersArticlesSeed extends AbstractSeed
      */
     public function run(): void
     {
-        // Insert data into the 'users' table
-        $usersData = [
-            [
-                'email' => 'cakephp@example.com',
-                'password' => 'secret',
-                'created' => date('Y-m-d H:i:s'),
-                'modified' => date('Y-m-d H:i:s'),
-            ],
-        ];
-        $this->table('users')->insert($usersData)->save();
-
         // Insert data into the 'articles' table
         $articlesData = [
             [

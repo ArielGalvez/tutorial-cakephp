@@ -1,5 +1,3 @@
-<!-- File: templates/Articles/add.php -->
-
 <h1>Add Article</h1>
 <?php
     echo $this->Form->create($article);

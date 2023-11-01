@@ -3,9 +3,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Datasource\EntityInterface;
+
 /**
  * Articles Controller
  *
+ * @property \App\Model\Table\ArticlesTable $Articles
  * @method \App\Model\Entity\Article[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
 class ArticlesController extends AppController
@@ -24,33 +27,35 @@ class ArticlesController extends AppController
     }
 
     /**
-     * Index method.
+     * Index method
      *
      * @return \Cake\Http\Response|null|void Renders view
      */
     public function index()
     {
-        $this->loadComponent('Paginator');
         $articles = $this->Paginator->paginate($this->Articles->find());
         $this->set(compact('articles'));
     }
 
     /**
-     * View method.
+     * View method
      *
-     * @param string|null $slug Article slug
+     * @param string|null $slug Article slug.
      * @return \Cake\Http\Response|null|void Renders view
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function view($slug = null)
     {
-        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        $article = $this->Articles->find('all', [
+            'conditions' => ['Articles.slug =' => $slug],
+        ])->firstOrFail();
         $this->set(compact('article'));
     }
 
     /**
-     * Add method.
+     * Add method
      *
-     * @return \Cake\Http\Response|null|void Redirects on successful add
+     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
     public function add()
     {
@@ -60,7 +65,9 @@ class ArticlesController extends AppController
 
             // Hardcoding the user_id is temporary, and will be removed later
             // when we build authentication out.
-            $article->user_id = 1;
+            if (property_exists($article, 'user_id')) {
+                $article->user_id = 1;
+            }
 
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('Your article has been saved.'));
@@ -73,16 +80,23 @@ class ArticlesController extends AppController
     }
 
     /**
-     * Edit method.
+     * Edit method
      *
-     * @param string $slug Article slug
-     * @return \Cake\Http\Response|null|void Redirects on successful edit
+     * @param string $slug Article slug.
+     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function edit($slug)
     {
-        $article = $this->Articles
-            ->findBySlug($slug)
-            ->firstOrFail();
+        $article = $this->Articles->find('all', [
+            'conditions' => ['Articles.slug =' => $slug],
+        ])->firstOrFail();
+
+        if (!$article instanceof EntityInterface) {
+            $this->Flash->error(__('Article not found.'));
+
+            return $this->redirect(['action' => 'index']);
+        }
 
         if ($this->request->is(['post', 'put'])) {
             $this->Articles->patchEntity($article, $this->request->getData());
@@ -98,18 +112,28 @@ class ArticlesController extends AppController
     }
 
     /**
-     * Delete method.
+     * Delete method
      *
      * @param string $slug Article slug
-     * @return \Cake\Http\Response|null|void Redirects to index
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function delete($slug)
     {
         $this->request->allowMethod(['post', 'delete']);
 
-        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        $article = $this->Articles->find('all', [
+            'conditions' => ['Articles.slug =' => $slug],
+        ])->firstOrFail();
+
+        if (!$article instanceof EntityInterface) {
+            $this->Flash->error(__('Article not found.'));
+
+            return $this->redirect(['action' => 'index']);
+        }
+
         if ($this->Articles->delete($article)) {
-            $this->Flash->success(__('The {0} article has been deleted.', $article->title));
+            $this->Flash->success(__('The {0} article has been deleted.', $article->get('title')));
 
             return $this->redirect(['action' => 'index']);
         }

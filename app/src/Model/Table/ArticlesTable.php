@@ -1,15 +1,11 @@
 <?php
 declare(strict_types=1);
 
-// src/Model/Table/ArticlesTable.php
 namespace App\Model\Table;
 
-// the EventInterface class
 use Cake\Event\EventInterface;
 use Cake\ORM\Table;
-// the Text class
 use Cake\Utility\Text;
-// the Validator class
 use Cake\Validation\Validator;
 
 class ArticlesTable extends Table
@@ -54,7 +50,11 @@ class ArticlesTable extends Table
             ->notEmptyString('title')
             ->minLength('title', 10)
             ->maxLength('title', 255)
-
+            ->add('title', 'unique', [
+                'rule' => 'validateUnique',
+                'provider' => 'table',
+                'message' => 'The title is already in use',
+            ])
             ->notEmptyString('body')
             ->minLength('body', 10);
 

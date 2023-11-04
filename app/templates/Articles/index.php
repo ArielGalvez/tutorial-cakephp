@@ -7,8 +7,6 @@
         <th>Action</th>
     </tr>
 
-<!-- Here's where we iterate through our $articles query object, printing out article info -->
-
 <?php foreach ($articles as $article): ?>
     <tr>
         <td>

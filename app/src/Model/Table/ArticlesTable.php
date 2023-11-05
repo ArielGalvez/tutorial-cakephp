@@ -4,12 +4,10 @@ declare(strict_types=1);
 namespace App\Model\Table;
 
 use Cake\Event\EventInterface;
+use Cake\ORM\Query;
 use Cake\ORM\Table;
 use Cake\Utility\Text;
 use Cake\Validation\Validator;
-
-// the Query class
-use Cake\ORM\Query;
 
 class ArticlesTable extends Table
 {
@@ -24,7 +22,7 @@ class ArticlesTable extends Table
         $this->addBehavior('Timestamp');
         $this->belongsToMany('Tags', [
             'joinTable' => 'articles_tags',
-            'dependent' => true
+            'dependent' => true,
         ]);
     }
 
@@ -72,9 +70,13 @@ class ArticlesTable extends Table
         return $validator;
     }
 
-    // The $query argument is a query builder instance.
-    // The $options array will contain the 'tags' option we passed
-    // to find('tagged') in our controller action.
+    /**
+     * Custom finder method to retrieve articles based on provided tags.
+     *
+     * @param \Cake\ORM\Query $query The query builder.
+     * @param array $options An array of options containing the 'tags' key with an array of tags.
+     * @return \Cake\ORM\Query A Query object with conditions for retrieving tagged articles.
+     */
     public function findTagged(Query $query, array $options)
     {
         $columns = [
@@ -100,6 +102,16 @@ class ArticlesTable extends Table
         return $query->group(['Articles.id']);
     }
 
+    /**
+     * Build and return an array of tags from a comma-separated tag string.
+     *
+     * This method takes a comma-separated string of tags, trims each tag, removes empty tags,
+     * eliminates duplicated tags, and returns an array of corresponding Tag entities.
+     * If the tags already exist in the database, they are retrieved; otherwise, new Tag entities are created.
+     *
+     * @param string $tagString The comma-separated tag string.
+     * @return \Cake\Datasource\EntityInterface[] An array of Tag entities.
+     */
     protected function _buildTags($tagString)
     {
         // Trim tags
@@ -129,6 +141,7 @@ class ArticlesTable extends Table
         foreach ($newTags as $tag) {
             $out[] = $this->Tags->newEntity(['title' => $tag]);
         }
+
         return $out;
     }
 }

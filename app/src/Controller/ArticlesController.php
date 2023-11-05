@@ -46,9 +46,10 @@ class ArticlesController extends AppController
      */
     public function view($slug = null)
     {
-        $article = $this->Articles->find('all', [
-            'conditions' => ['Articles.slug =' => $slug],
-        ])->firstOrFail();
+        $article = $this->Articles->find()
+            ->where(['slug' => $slug])
+            ->contain('Tags')
+            ->firstOrFail();
         $this->set(compact('article'));
     }
 
@@ -76,11 +77,10 @@ class ArticlesController extends AppController
             }
             $this->Flash->error(__('Unable to add your article.'));
         }
-        $tags = $this->Articles->Tags->find('list')->all();
 
-        $this->set('tags', $tags);
+        $tags = $this->Articles->get('Tags')->find('list')->all();
 
-        $this->set('article', $article);
+        $this->set(compact('article', 'tags'));
     }
 
     /**
@@ -113,9 +113,7 @@ class ArticlesController extends AppController
         }
 
         $tags = $this->Articles->Tags->find('list')->all();
-        $this->set('tags', $tags);
-
-        $this->set('article', $article);
+        $this->set(compact('article', 'tags'));
     }
 
     /**
@@ -146,6 +144,14 @@ class ArticlesController extends AppController
         }
     }
 
+    /**
+     * Display articles tagged with specified tags.
+     *
+     * This method retrieves articles that are tagged with the specified tags and
+     * displays them in the view. The tags are extracted from the URL path segments.
+     *
+     * @return void
+     */
     public function tags()
     {
         // The 'pass' key is provided by CakePHP and contains all
@@ -154,14 +160,11 @@ class ArticlesController extends AppController
 
         // Use the ArticlesTable to find tagged articles.
         $articles = $this->Articles->find('tagged', [
-                'tags' => $tags
+                'tags' => $tags,
             ])
             ->all();
 
         // Pass variables into the view template context.
-        $this->set([
-            'articles' => $articles,
-            'tags' => $tags
-        ]);
+        $this->set(compact('article', 'tags'));
     }
 }

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
-use Cake\ORM\Entity;
 use Cake\Collection\Collection;
+use Cake\ORM\Entity;
 
 /**
  * Article Entity
@@ -43,6 +43,14 @@ class Article extends Entity
         'tag_string' => true,
     ];
 
+    /**
+     * Get the tag string for the article.
+     *
+     * This method retrieves and constructs a comma-separated string of tags associated
+     * with the article entity. The resulting string can be used for display purposes.
+     *
+     * @return string The comma-separated tag string.
+     */
     protected function _getTagString()
     {
         if (isset($this->_fields['tag_string'])) {
@@ -55,6 +63,7 @@ class Article extends Entity
         $str = $tags->reduce(function ($string, $tag) {
             return $string . $tag->title . ', ';
         }, '');
+
         return trim($str, ', ');
     }
 }

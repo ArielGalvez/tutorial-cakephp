@@ -2,11 +2,13 @@
 declare(strict_types=1);
 
 namespace App\Controller;
+use Cake\Event\EventInterface;
 
 /**
  * Users Controller
  *
  * @property \App\Model\Table\UsersTable $Users
+ * @property \Authentication\Controller\Component\AuthenticationComponent $Authentication
  * @method \App\Model\Entity\User[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
 class UsersController extends AppController
@@ -137,15 +139,15 @@ class UsersController extends AppController
         // regardless of POST or GET, redirect if user is logged in
         if ($result && $result->isValid()) {
             // redirect to /articles after login success
-            $redirect = $this->request->getQuery('redirect', [
-                'controller' => 'Articles',
-                'action' => 'index',
-            ]);
-
-            return $this->redirect($redirect);
+            $redirectUrl = $this->request->getQuery('redirect');
+            if ($redirectUrl) {
+                return $this->redirect($redirectUrl);
+            } else {
+                return $this->redirect(['controller' => 'Articles', 'action' => 'index']);
+            }
         }
         // display error if user submitted and authentication failed
-        if ($this->request->is('post') && !$result->isValid()) {
+        if ($this->request->is('post') && $result && !$result->isValid()) {
             $this->Flash->error(__('Invalid username or password'));
         }
     }

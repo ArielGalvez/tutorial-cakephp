@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use Cake\Event\EventInterface;
 
 /**
  * Application Controller
@@ -24,6 +25,7 @@ use Cake\Controller\Controller;
  * Add your application-wide methods in the class below, your controllers
  * will inherit them.
  *
+ * @property \Authentication\Controller\Component\AuthenticationComponent $Authentication
  * @link https://book.cakephp.org/4/en/controllers.html#the-app-controller
  */
 class AppController extends Controller

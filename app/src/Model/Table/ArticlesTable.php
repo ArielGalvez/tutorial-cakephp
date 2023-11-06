@@ -9,6 +9,25 @@ use Cake\ORM\Table;
 use Cake\Utility\Text;
 use Cake\Validation\Validator;
 
+/**
+ * Articles Model
+ *
+ * @property \App\Model\Table\TagsTable&\Cake\ORM\Association\BelongsToMany $Tags
+ * @method \App\Model\Entity\Article newEmptyEntity()
+ * @method \App\Model\Entity\Article newEntity(array $data, array $options = [])
+ * @method \App\Model\Entity\Article[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\Article get($primaryKey, $options = [])
+ * @method \App\Model\Entity\Article findOrCreate($search, ?callable $callback = null, $options = [])
+ * @method \App\Model\Entity\Article patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\Article[] patchEntities(iterable $entities, array $data, array $options = [])
+ * @method \App\Model\Entity\Article|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Article saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Article[]|\Cake\Datasource\ResultSetInterface|false saveMany(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Article[]|\Cake\Datasource\ResultSetInterface saveManyOrFail(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Article[]|\Cake\Datasource\ResultSetInterface|false deleteMany(iterable $entities, $options = [])
+ * @method \App\Model\Entity\Article[]|\Cake\Datasource\ResultSetInterface deleteManyOrFail(iterable $entities, $options = [])
+ * @mixin \Cake\ORM\Behavior\TimestampBehavior
+ */
 class ArticlesTable extends Table
 {
     /**
@@ -36,8 +55,8 @@ class ArticlesTable extends Table
      */
     public function beforeSave(EventInterface $event, $entity, $options)
     {
-        if ($entity->tag_string) {
-            $entity->tags = $this->_buildTags($entity->tag_string);
+        if ($entity->has('tags')) {
+            $entity->set('tags', $this->_buildTags($entity->tag_string ?? ''));
         }
 
         if ($entity->isNew() && !$entity->get('slug')) {

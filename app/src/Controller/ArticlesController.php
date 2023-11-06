@@ -56,7 +56,7 @@ class ArticlesController extends AppController
     /**
      * Add method
      *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
+     * @return \Cake\Http\Response|null|void Redirects on successful add
      */
     public function add()
     {
@@ -78,7 +78,7 @@ class ArticlesController extends AppController
             $this->Flash->error(__('Unable to add your article.'));
         }
 
-        $tags = $this->Articles->get('Tags')->find('list')->all();
+        $tags = $this->Articles->Tags->find('list')->all();
 
         $this->set(compact('article', 'tags'));
     }
@@ -86,15 +86,15 @@ class ArticlesController extends AppController
     /**
      * Edit method
      *
-     * @param string $slug Article slug.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     * @param string $slug Article slug
+     * @return \Cake\Http\Response|null|void Redirects on successful edit
      */
     public function edit($slug)
     {
-        $article = $this->Articles->find('all', [
-            'conditions' => ['Articles.slug =' => $slug],
-        ])->firstOrFail();
+        $article = $this->Articles->find()
+            ->where(['slug' => $slug])
+            ->contain('Tags')
+            ->firstOrFail();
 
         if (!$article instanceof EntityInterface) {
             $this->Flash->error(__('Article not found.'));
@@ -103,7 +103,7 @@ class ArticlesController extends AppController
         }
 
         if ($this->request->is(['post', 'put'])) {
-            $this->Articles->patchEntity($article, $this->request->getData());
+            $article = $this->Articles->patchEntity($article, $this->request->getData());
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('Your article has been updated.'));
 
@@ -126,21 +126,16 @@ class ArticlesController extends AppController
     public function delete($slug)
     {
         $this->request->allowMethod(['post', 'delete']);
+        $article = $this->Articles->find()
+            ->where(['slug' => $slug])
+            ->firstOrFail();
+        if ($article instanceof EntityInterface) {
+            $articleTitle = $article->get('title');
+            if ($this->Articles->delete($article)) {
+                $this->Flash->success(__('The {0} article has been deleted.', $articleTitle));
 
-        $article = $this->Articles->find('all', [
-            'conditions' => ['Articles.slug =' => $slug],
-        ])->firstOrFail();
-
-        if (!$article instanceof EntityInterface) {
-            $this->Flash->error(__('Article not found.'));
-
-            return $this->redirect(['action' => 'index']);
-        }
-
-        if ($this->Articles->delete($article)) {
-            $this->Flash->success(__('The {0} article has been deleted.', $article->get('title')));
-
-            return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index']);
+            }
         }
     }
 
@@ -160,11 +155,11 @@ class ArticlesController extends AppController
 
         // Use the ArticlesTable to find tagged articles.
         $articles = $this->Articles->find('tagged', [
-                'tags' => $tags,
-            ])
-            ->all();
+            'tags' => $tags,
+        ])
+        ->all();
 
         // Pass variables into the view template context.
-        $this->set(compact('article', 'tags'));
+        $this->set(compact('articles', 'tags'));
     }
 }

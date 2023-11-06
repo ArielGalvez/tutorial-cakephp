@@ -20,8 +20,6 @@ use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
 use Authentication\Middleware\AuthenticationMiddleware;
-use Cake\Routing\Router;
-use Psr\Http\Message\ServerRequestInterface;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\FactoryLocator;
@@ -33,6 +31,8 @@ use Cake\Http\MiddlewareQueue;
 use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use Cake\Routing\Router;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Application setup class.
@@ -40,8 +40,7 @@ use Cake\Routing\Middleware\RoutingMiddleware;
  * This defines the bootstrapping logic and middleware layers you
  * want to use in your application.
  */
-class Application extends BaseApplication
-    implements AuthenticationServiceProviderInterface
+class Application extends BaseApplication implements AuthenticationServiceProviderInterface
 {
     /**
      * Load all the application configuration and bootstrap logic.
@@ -140,7 +139,15 @@ class Application extends BaseApplication
         // Load more plugins here
     }
 
-    
+    /**
+     * Get the authentication service with configured identifiers and authenticators.
+     *
+     * This method creates and configures an instance of the `AuthenticationService` class,
+     * setting up identifiers and authenticators for user authentication.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The server request object.
+     * @return \Authentication\AuthenticationServiceInterface The configured authentication service.
+     */
     public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
     {
         $authenticationService = new AuthenticationService([
@@ -153,7 +160,7 @@ class Application extends BaseApplication
             'fields' => [
                 'username' => 'email',
                 'password' => 'password',
-            ]
+            ],
         ]);
 
         // Load the authenticators, you want session first

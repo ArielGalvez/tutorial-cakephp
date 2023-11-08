@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Cake\Log\Log;
 use Phinx\Seed\AbstractSeed;
 
 /**
@@ -21,19 +22,29 @@ class UsersSeed extends AbstractSeed
     public function run(): void
     {
         try {
-            // Insert data into the 'users' table
+            // Define the data to insert
+            $userEmail = 'cakephp@example.com';
             $usersData = [
                 [
-                    'email' => 'cakephp@example.com',
+                    'email' => $userEmail,
                     'password' => 'secret',
                     'created' => date('Y-m-d H:i:s'),
                     'modified' => date('Y-m-d H:i:s'),
                 ],
             ];
-            $this->table('users')->insert($usersData)->save();
+
+            // Check if data with the same email already exists
+            $existingData = $this->fetchRow("SELECT * FROM users WHERE email = '".$userEmail."'");
+
+            if (!$existingData) {
+                // Data doesn't exist, so insert it
+                $this->table('users')->insert($usersData)->save();
+            } else {
+                Log::write('warning', 'User with email `{email}` already exists.', ['email' => $userEmail]);
+            }
         } catch (\Exception $e) {
-            echo "UsersSeed already executed";
-            echo "Error: " . $e->getMessage();
+            // Catch the error if so
+            Log::write('error', 'Error: {message}', ['message' => $e->getMessage()]);
         }
 
     }

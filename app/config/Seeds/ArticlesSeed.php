@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Cake\Log\Log;
 use Phinx\Seed\AbstractSeed;
 
 /**
@@ -8,7 +9,7 @@ use Phinx\Seed\AbstractSeed;
  */
 class ArticlesSeed extends AbstractSeed
 { 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             'UsersSeed',
@@ -28,11 +29,12 @@ class ArticlesSeed extends AbstractSeed
     public function run(): void
     {
         try {
-            // Insert data into the 'articles' table
+            // Define the data to insert
+            $title = 'First Post';
             $articlesData = [
                 [
                     'user_id' => 1,
-                    'title' => 'First Post',
+                    'title' => $title,
                     'slug' => 'first-post',
                     'body' => 'This is the first post.',
                     'published' => 1,
@@ -40,10 +42,19 @@ class ArticlesSeed extends AbstractSeed
                     'modified' => date('Y-m-d H:i:s'),
                 ],
             ];
-            $this->table('articles')->insert($articlesData)->save();
+
+            // Check if data with the same title already exists
+            $existingData = $this->fetchRow("SELECT * FROM articles WHERE title = '".$title."'");
+
+            if (!$existingData) {
+                // Data doesn't exist, so insert it
+                $this->table('articles')->insert($articlesData)->save();
+            } else {
+                Log::write('warning', 'Article with title `{title}` already exists.', ['title' => $title]);
+            }
         } catch (\Exception $e) {
-            echo "ArticlesSeed already executed";
-            echo "Error: " . $e->getMessage();
+            Log::error("Error: " . $e->getMessage());
+            Log::write('error', 'Error: {message}', ['message' => $e->getMessage()]);
         }
         
     }

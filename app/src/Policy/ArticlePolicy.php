@@ -17,7 +17,7 @@ class ArticlePolicy
      * Check if $user can add Article
      *
      * @param \Authorization\IdentityInterface $user The user.
-     * @param \App\Model\Entity\Article $article
+     * @param \App\Model\Entity\Article $article The article to be checked.
      * @return bool
      */
     public function canAdd(IdentityInterface $user, Article $article)
@@ -30,7 +30,7 @@ class ArticlePolicy
      * Check if $user can edit Article
      *
      * @param \Authorization\IdentityInterface $user The user.
-     * @param \App\Model\Entity\Article $article
+     * @param \App\Model\Entity\Article $article The article to be checked.
      * @return bool
      */
     public function canEdit(IdentityInterface $user, Article $article)
@@ -43,7 +43,7 @@ class ArticlePolicy
      * Check if $user can delete Article
      *
      * @param \Authorization\IdentityInterface $user The user.
-     * @param \App\Model\Entity\Article $article
+     * @param \App\Model\Entity\Article $article The article to be checked.
      * @return bool
      */
     public function canDelete(IdentityInterface $user, Article $article)
@@ -64,6 +64,9 @@ class ArticlePolicy
      */
     protected function isAuthor(IdentityInterface $user, Article $article)
     {
-        return $article->user_id === $user->getIdentifier();
+        /** @var \App\Model\Entity\User $userEntity */
+        $userEntity = $user->getOriginalData();
+
+        return $article->user_id === $userEntity->id;
     }
 }

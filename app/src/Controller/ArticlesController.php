@@ -46,16 +46,17 @@ class ArticlesController extends AppController
      */
     public function view($slug = null)
     {
-        $article = $this->Articles->find('all', [
-            'conditions' => ['Articles.slug =' => $slug],
-        ])->firstOrFail();
+        $article = $this->Articles->find()
+            ->where(['slug' => $slug])
+            ->contain('Tags')
+            ->firstOrFail();
         $this->set(compact('article'));
     }
 
     /**
      * Add method
      *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
+     * @return \Cake\Http\Response|null|void Redirects on successful add
      */
     public function add()
     {
@@ -63,7 +64,7 @@ class ArticlesController extends AppController
         if ($this->request->is('post')) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
 
-            // Hardcoding the user_id is temporary, and will be removed later
+            // TODO: Hardcoding the user_id is temporary, and will be removed later
             // when we build authentication out.
             if (property_exists($article, 'user_id')) {
                 $article->user_id = 1;
@@ -76,21 +77,24 @@ class ArticlesController extends AppController
             }
             $this->Flash->error(__('Unable to add your article.'));
         }
-        $this->set('article', $article);
+
+        $tags = $this->Articles->Tags->find('list')->all();
+
+        $this->set(compact('article', 'tags'));
     }
 
     /**
      * Edit method
      *
-     * @param string $slug Article slug.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     * @param string $slug Article slug
+     * @return \Cake\Http\Response|null|void Redirects on successful edit
      */
     public function edit($slug)
     {
-        $article = $this->Articles->find('all', [
-            'conditions' => ['Articles.slug =' => $slug],
-        ])->firstOrFail();
+        $article = $this->Articles->find()
+            ->where(['slug' => $slug])
+            ->contain('Tags')
+            ->firstOrFail();
 
         if (!$article instanceof EntityInterface) {
             $this->Flash->error(__('Article not found.'));
@@ -99,7 +103,7 @@ class ArticlesController extends AppController
         }
 
         if ($this->request->is(['post', 'put'])) {
-            $this->Articles->patchEntity($article, $this->request->getData());
+            $article = $this->Articles->patchEntity($article, $this->request->getData());
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('Your article has been updated.'));
 
@@ -108,7 +112,8 @@ class ArticlesController extends AppController
             $this->Flash->error(__('Unable to update your article.'));
         }
 
-        $this->set('article', $article);
+        $tags = $this->Articles->Tags->find('list')->all();
+        $this->set(compact('article', 'tags'));
     }
 
     /**
@@ -121,21 +126,40 @@ class ArticlesController extends AppController
     public function delete($slug)
     {
         $this->request->allowMethod(['post', 'delete']);
+        $article = $this->Articles->find()
+            ->where(['slug' => $slug])
+            ->firstOrFail();
+        if ($article instanceof EntityInterface) {
+            $articleTitle = $article->get('title');
+            if ($this->Articles->delete($article)) {
+                $this->Flash->success(__('The {0} article has been deleted.', $articleTitle));
 
-        $article = $this->Articles->find('all', [
-            'conditions' => ['Articles.slug =' => $slug],
-        ])->firstOrFail();
-
-        if (!$article instanceof EntityInterface) {
-            $this->Flash->error(__('Article not found.'));
-
-            return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index']);
+            }
         }
+    }
 
-        if ($this->Articles->delete($article)) {
-            $this->Flash->success(__('The {0} article has been deleted.', $article->get('title')));
+    /**
+     * Display articles tagged with specified tags.
+     *
+     * This method retrieves articles that are tagged with the specified tags and
+     * displays them in the view. The tags are extracted from the URL path segments.
+     *
+     * @return void
+     */
+    public function tags()
+    {
+        // The 'pass' key is provided by CakePHP and contains all
+        // the passed URL path segments in the request.
+        $tags = $this->request->getParam('pass');
 
-            return $this->redirect(['action' => 'index']);
-        }
+        // Use the ArticlesTable to find tagged articles.
+        $articles = $this->Articles->find('tagged', [
+            'tags' => $tags,
+        ])
+        ->all();
+
+        // Pass variables into the view template context.
+        $this->set(compact('articles', 'tags'));
     }
 }

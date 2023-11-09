@@ -2,13 +2,11 @@
 declare(strict_types=1);
 
 namespace App\Controller;
-use Cake\Event\EventInterface;
 
 /**
  * Users Controller
  *
  * @property \App\Model\Table\UsersTable $Users
- * @property \Authentication\Controller\Component\AuthenticationComponent $Authentication
  * @method \App\Model\Entity\User[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
 class UsersController extends AppController

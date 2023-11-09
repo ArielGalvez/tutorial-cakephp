@@ -8,8 +8,6 @@ use Cake\Datasource\EntityInterface;
 /**
  * Articles Controller
  *
- * @property \Authentication\Controller\Component\AuthenticationComponent $Authentication
- * @property \Authorization\Controller\Component\AuthorizationComponent $Authorization
  * @property \App\Model\Table\ArticlesTable $Articles
  * @method \App\Model\Entity\Article[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */

@@ -50,6 +50,7 @@ class ArticlesController extends AppController
             ->where(['slug' => $slug])
             ->contain('Tags')
             ->firstOrFail();
+
         $this->set(compact('article'));
     }
 
@@ -61,13 +62,13 @@ class ArticlesController extends AppController
     public function add()
     {
         $article = $this->Articles->newEmptyEntity();
+        $this->Authorization->authorize($article);
+
         if ($this->request->is('post')) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
 
-            // TODO: Hardcoding the user_id is temporary, and will be removed later
-            // when we build authentication out.
             if (property_exists($article, 'user_id')) {
-                $article->user_id = 1;
+                $article->user_id = $this->request->getAttribute('identity')->getIdentifier();
             }
 
             if ($this->Articles->save($article)) {
@@ -95,6 +96,7 @@ class ArticlesController extends AppController
             ->where(['slug' => $slug])
             ->contain('Tags')
             ->firstOrFail();
+        $this->Authorization->authorize($article);
 
         if (!$article instanceof EntityInterface) {
             $this->Flash->error(__('Article not found.'));
@@ -111,7 +113,6 @@ class ArticlesController extends AppController
             }
             $this->Flash->error(__('Unable to update your article.'));
         }
-
         $tags = $this->Articles->Tags->find('list')->all();
         $this->set(compact('article', 'tags'));
     }

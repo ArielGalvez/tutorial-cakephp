@@ -25,6 +25,7 @@ use Cake\Controller\Controller;
  * will inherit them.
  *
  * @property \Authentication\Controller\Component\AuthenticationComponent $Authentication
+ * @property \Authorization\Controller\Component\AuthorizationComponent $Authorization
  * @link https://book.cakephp.org/4/en/controllers.html#the-app-controller
  */
 class AppController extends Controller
@@ -45,6 +46,7 @@ class AppController extends Controller
         $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
         $this->loadComponent('Authentication.Authentication');
+        $this->loadComponent('Authorization.Authorization');
 
         /*
          * Enable the following component for recommended CakePHP form protection settings.
@@ -69,5 +71,6 @@ class AppController extends Controller
         // for all controllers in our application, make index and view
         // actions public, skipping the authentication check
         $this->Authentication->addUnauthenticatedActions(['index', 'view']);
+        $this->Authorization->skipAuthorization();
     }
 }

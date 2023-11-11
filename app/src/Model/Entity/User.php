@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
+use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Cake\ORM\Entity;
 
 /**
@@ -43,4 +44,23 @@ class User extends Entity
     protected $_hidden = [
         'password',
     ];
+
+    /**
+     * Set and hash the user password.
+     *
+     * This method is used to set and hash the user's password before saving it to the database.
+     * It checks the length of the provided password and, if it's not empty, hashes the password
+     * using the default password hasher.
+     *
+     * @param string $password The user's plaintext password.
+     * @return string|null The hashed password or null if the provided password is empty.
+     */
+    protected function _setPassword(string $password): ?string
+    {
+        if (strlen($password) > 0) {
+            return (new DefaultPasswordHasher())->hash($password);
+        }
+
+        return null;
+    }
 }

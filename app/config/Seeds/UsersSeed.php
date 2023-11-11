@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Cake\Log\Log;
+use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Phinx\Seed\AbstractSeed;
 
 /**
@@ -27,7 +28,7 @@ class UsersSeed extends AbstractSeed
             $usersData = [
                 [
                     'email' => $userEmail,
-                    'password' => 'secret',
+                    'password' => (new DefaultPasswordHasher())->hash('secret'),
                     'created' => date('Y-m-d H:i:s'),
                     'modified' => date('Y-m-d H:i:s'),
                 ],

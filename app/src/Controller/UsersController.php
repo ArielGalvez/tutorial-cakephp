@@ -102,4 +102,71 @@ class UsersController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+    /**
+     * Callback method executed before each controller action.
+     *
+     * This method is used to configure the authentication component by adding actions that
+     * do not require user authentication. It prevents an infinite redirect loop issue when
+     * unauthenticated users try to access login and add actions.
+     *
+     * @param \Cake\Event\EventInterface $event The event object.
+     * @return void
+     */
+    public function beforeFilter(\Cake\Event\EventInterface $event)
+    {
+        parent::beforeFilter($event);
+        // Configure the login action to not require authentication, preventing
+        // the infinite redirect loop issue
+        $this->Authentication->addUnauthenticatedActions(['login', 'add']);
+    }
+
+    /**
+     * User login action.
+     *
+     * This action handles user login requests, allowing both GET and POST methods. If the
+     * user is already logged in, they are redirected to the articles index page. If the login
+     * attempt is invalid, an error message is displayed.
+     *
+     * @return \Cake\Http\Response|null|void
+     */
+    public function login()
+    {
+        $this->request->allowMethod(['get', 'post']);
+        $result = $this->Authentication->getResult();
+        // regardless of POST or GET, redirect if user is logged in
+        if ($result && $result->isValid()) {
+            // redirect to /articles after login success
+            $redirectUrl = $this->request->getQuery('redirect');
+            if ($redirectUrl) {
+                return $this->redirect($redirectUrl);
+            } else {
+                return $this->redirect(['controller' => 'Articles', 'action' => 'index']);
+            }
+        }
+        // display error if user submitted and authentication failed
+        if ($this->request->is('post') && $result && !$result->isValid()) {
+            $this->Flash->error(__('Invalid username or password'));
+        }
+    }
+
+    /**
+     * User logout action.
+     *
+     * This action handles user logout requests. It logs out the user and redirects them to
+     * the login page. Regardless of the HTTP method used (POST or GET), the user is logged
+     * out if they are currently logged in.
+     *
+     * @return \Cake\Http\Response|null|void
+     */
+    public function logout()
+    {
+        $result = $this->Authentication->getResult();
+        // regardless of POST or GET, redirect if user is logged in
+        if ($result && $result->isValid()) {
+            $this->Authentication->logout();
+
+            return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+        }
+    }
 }

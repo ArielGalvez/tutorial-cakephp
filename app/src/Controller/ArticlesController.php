@@ -33,7 +33,6 @@ class ArticlesController extends AppController
      */
     public function index()
     {
-        $this->Authorization->skipAuthorization();
         $articles = $this->Paginator->paginate($this->Articles->find());
         $this->set(compact('articles'));
     }
@@ -52,7 +51,6 @@ class ArticlesController extends AppController
             ->contain('Tags')
             ->firstOrFail();
 
-        $this->Authorization->skipAuthorization();
         $this->set(compact('article'));
     }
 
@@ -152,7 +150,6 @@ class ArticlesController extends AppController
      */
     public function tags()
     {
-        $this->Authorization->skipAuthorization();
         // The 'pass' key is provided by CakePHP and contains all
         // the passed URL path segments in the request.
         $tags = $this->request->getParam('pass');
